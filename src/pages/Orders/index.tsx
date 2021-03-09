@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+// import { useNavigation } from '@react-navigation/native';
 import { Image } from 'react-native';
 
 import api from '../../services/api';
@@ -24,19 +25,31 @@ interface Food {
   description: string;
   price: number;
   formattedPrice: string;
+  formattedTotalPrice: string;
   thumbnail_url: string;
 }
 
 const Orders: React.FC = () => {
   const [orders, setOrders] = useState<Food[]>([]);
 
+  // const navigation = useNavigation();
+
   useEffect(() => {
     async function loadOrders(): Promise<void> {
-      // Load orders from API
+      const response = await api.get('/orders');
+
+      setOrders(response.data.map((order: Food) => ({
+        ...order,
+        formattedPrice: formatValue(order.price),
+      })))
     }
 
     loadOrders();
   }, []);
+
+  // async function handleNavigate(id: number): Promise<void> {
+  //   navigation.navigate('OrderDetails', { id });
+  // }
 
   return (
     <Container>
@@ -49,7 +62,11 @@ const Orders: React.FC = () => {
           data={orders}
           keyExtractor={item => String(item.id)}
           renderItem={({ item }) => (
-            <Food key={item.id} activeOpacity={0.6}>
+            <Food
+              key={item.id}
+              activeOpacity={0.6}
+              // onPress={() => handleNavigate(item.id)}
+            >
               <FoodImageContainer>
                 <Image
                   style={{ width: 88, height: 88 }}
